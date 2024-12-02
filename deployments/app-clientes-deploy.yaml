@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-clientes-deploy
+spec:
+  selector:
+    matchLabels:
+      app: pedeai-clientes
+  template:
+    metadata:
+      labels:
+        app: pedeai-clientes
+    spec:
+      containers:
+        - name: pedeai-clientes
+          image: DOCKER_IMAGE
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: app-clientes-cm
+          resources:
+            requests:
+              cpu: 200m

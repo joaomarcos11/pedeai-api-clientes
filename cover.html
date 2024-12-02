@@ -1,0 +1,1075 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>postgresql: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/cliente.go (71.4%)</option>
+				
+				<option value="file1">github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/db/db.go (50.0%)</option>
+				
+				<option value="file2">github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/db/queries.sql.go (91.4%)</option>
+				
+				<option value="file3">github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/setup.go (91.7%)</option>
+				
+				<option value="file4">github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/api.go (100.0%)</option>
+				
+				<option value="file5">github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1/entities/cliente.go (80.0%)</option>
+				
+				<option value="file6">github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1/handlers/clientes.go (67.4%)</option>
+				
+				<option value="file7">github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1/routes.go (100.0%)</option>
+				
+				<option value="file8">github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities/cliente.go (100.0%)</option>
+				
+				<option value="file9">github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities/entity.go (100.0%)</option>
+				
+				<option value="file10">github.com/filipeandrade6/fiap-pedeai-clientes/domain/services/cliente.go (96.1%)</option>
+				
+				<option value="file11">github.com/filipeandrade6/fiap-pedeai-clientes/main.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package postgresql
+
+import (
+        "context"
+        "errors"
+        "fmt"
+
+        "github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/db"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities"
+        entityErr "github.com/filipeandrade6/fiap-pedeai-clientes/domain/errors"
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+func (r *Repository) Create(cliente entities.Cliente) error <span class="cov8" title="1">{
+        _, err := r.db.CreateCliente(
+                context.Background(),
+                db.CreateClienteParams{
+                        ID:    pgtype.UUID{Bytes: cliente.Id(), Valid: true},
+                        Nome:  pgtype.Text{String: cliente.Name(), Valid: true},
+                        Cpf:   pgtype.Text{String: cliente.CPF(), Valid: true},
+                        Email: pgtype.Text{String: cliente.Email(), Valid: true},
+                        Ativo: cliente.Active(),
+                },
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("db creating cliente: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *Repository) List() ([]*entities.Cliente, error) <span class="cov8" title="1">{
+        clientes, err := r.db.ListCliente(context.Background())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">var clientesOut []*entities.Cliente
+        for _, cliente := range clientes </span><span class="cov8" title="1">{
+                c, err := entities.New(
+                        cliente.ID.Bytes,
+                        cliente.Nome.String,
+                        cliente.Cpf.String,
+                        cliente.Email.String,
+                        cliente.Ativo,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">clientesOut = append(clientesOut, c)</span>
+        }
+
+        <span class="cov8" title="1">return clientesOut, nil</span>
+
+}
+
+func (r *Repository) GetClienteById(id entities.ID) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := r.db.GetClienteById(context.Background(), pgtype.UUID{Bytes: id, Valid: true})
+        if errors.Is(err, pgx.ErrNoRows) </span><span class="cov0" title="0">{
+                return nil, entityErr.ErrNotFound
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">cOut, err := entities.New(
+                c.ID.Bytes,
+                c.Nome.String,
+                c.Cpf.String,
+                c.Email.String,
+                c.Ativo,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return cOut, nil</span>
+}
+
+func (r *Repository) GetClienteByCPF(cpf string) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := r.db.GetClienteByCPF(context.Background(), pgtype.Text{String: cpf, Valid: true})
+        if errors.Is(err, pgx.ErrNoRows) </span><span class="cov0" title="0">{
+                return nil, entityErr.ErrNotFound
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">cOut, err := entities.New(
+                c.ID.Bytes,
+                c.Nome.String,
+                c.Cpf.String,
+                c.Email.String,
+                c.Ativo,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return cOut, nil</span>
+}
+
+func (r *Repository) GetClienteByEmail(email string) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := r.db.GetClienteByEmail(context.Background(), pgtype.Text{String: email, Valid: true})
+        if errors.Is(err, pgx.ErrNoRows) </span><span class="cov0" title="0">{
+                return nil, entityErr.ErrNotFound
+        }</span>
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">cOut, err := entities.New(
+                c.ID.Bytes,
+                c.Nome.String,
+                c.Cpf.String,
+                c.Email.String,
+                c.Ativo,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return cOut, nil</span>
+}
+
+func (r *Repository) Update(cliente entities.Cliente) error <span class="cov8" title="1">{
+        err := r.db.UpdateCliente(context.Background(), db.UpdateClienteParams{
+                ID:    pgtype.UUID{Bytes: cliente.Id(), Valid: true},
+                Nome:  pgtype.Text{String: cliente.Name(), Valid: true},
+                Cpf:   pgtype.Text{String: cliente.CPF(), Valid: true},
+                Email: pgtype.Text{String: cliente.Email(), Valid: true},
+                Ativo: cliente.Active(),
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("updating cliente %s in dabatabse: %w", cliente.Id(), err)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (r *Repository) Remove(id entities.ID) error <span class="cov8" title="1">{
+        err := r.db.DeleteCliente(context.Background(), pgtype.UUID{Bytes: id, Valid: true})
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("removing cliente %s in database: %w", id, err)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.27.0
+
+package db
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgconn"
+)
+
+type DBTX interface {
+        Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
+        Query(context.Context, string, ...interface{}) (pgx.Rows, error)
+        QueryRow(context.Context, string, ...interface{}) pgx.Row
+}
+
+func New(db DBTX) *Queries <span class="cov8" title="1">{
+        return &amp;Queries{db: db}
+}</span>
+
+type Queries struct {
+        db DBTX
+}
+
+func (q *Queries) WithTx(tx pgx.Tx) *Queries <span class="cov0" title="0">{
+        return &amp;Queries{
+                db: tx,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.27.0
+// source: queries.sql
+
+package db
+
+import (
+        "context"
+
+        "github.com/jackc/pgx/v5/pgtype"
+)
+
+const createCliente = `-- name: CreateCliente :one
+INSERT INTO  clientes
+(id, nome, cpf, email, ativo)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING ativo, id, cpf, email, nome
+`
+
+type CreateClienteParams struct {
+        ID    pgtype.UUID
+        Nome  pgtype.Text
+        Cpf   pgtype.Text
+        Email pgtype.Text
+        Ativo bool
+}
+
+func (q *Queries) CreateCliente(ctx context.Context, arg CreateClienteParams) (Cliente, error) <span class="cov8" title="1">{
+        row := q.db.QueryRow(ctx, createCliente,
+                arg.ID,
+                arg.Nome,
+                arg.Cpf,
+                arg.Email,
+                arg.Ativo,
+        )
+        var i Cliente
+        err := row.Scan(
+                &amp;i.Ativo,
+                &amp;i.ID,
+                &amp;i.Cpf,
+                &amp;i.Email,
+                &amp;i.Nome,
+        )
+        return i, err
+}</span>
+
+const deleteAllCliente = `-- name: DeleteAllCliente :exec
+DELETE FROM clientes
+`
+
+func (q *Queries) DeleteAllCliente(ctx context.Context) error <span class="cov8" title="1">{
+        _, err := q.db.Exec(ctx, deleteAllCliente)
+        return err
+}</span>
+
+const deleteCliente = `-- name: DeleteCliente :exec
+DELETE FROM clientes WHERE id = $1
+`
+
+func (q *Queries) DeleteCliente(ctx context.Context, id pgtype.UUID) error <span class="cov8" title="1">{
+        _, err := q.db.Exec(ctx, deleteCliente, id)
+        return err
+}</span>
+
+const getClienteByCPF = `-- name: GetClienteByCPF :one
+SELECT ativo, id, cpf, email, nome FROM clientes WHERE cpf = $1 LIMIT 1
+`
+
+func (q *Queries) GetClienteByCPF(ctx context.Context, cpf pgtype.Text) (Cliente, error) <span class="cov8" title="1">{
+        row := q.db.QueryRow(ctx, getClienteByCPF, cpf)
+        var i Cliente
+        err := row.Scan(
+                &amp;i.Ativo,
+                &amp;i.ID,
+                &amp;i.Cpf,
+                &amp;i.Email,
+                &amp;i.Nome,
+        )
+        return i, err
+}</span>
+
+const getClienteByEmail = `-- name: GetClienteByEmail :one
+SELECT ativo, id, cpf, email, nome FROM clientes WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) GetClienteByEmail(ctx context.Context, email pgtype.Text) (Cliente, error) <span class="cov8" title="1">{
+        row := q.db.QueryRow(ctx, getClienteByEmail, email)
+        var i Cliente
+        err := row.Scan(
+                &amp;i.Ativo,
+                &amp;i.ID,
+                &amp;i.Cpf,
+                &amp;i.Email,
+                &amp;i.Nome,
+        )
+        return i, err
+}</span>
+
+const getClienteById = `-- name: GetClienteById :one
+
+SELECT ativo, id, cpf, email, nome FROM clientes WHERE id = $1 LIMIT 1
+`
+
+// ----------------------------------------------
+// Clientes
+func (q *Queries) GetClienteById(ctx context.Context, id pgtype.UUID) (Cliente, error) <span class="cov8" title="1">{
+        row := q.db.QueryRow(ctx, getClienteById, id)
+        var i Cliente
+        err := row.Scan(
+                &amp;i.Ativo,
+                &amp;i.ID,
+                &amp;i.Cpf,
+                &amp;i.Email,
+                &amp;i.Nome,
+        )
+        return i, err
+}</span>
+
+const listCliente = `-- name: ListCliente :many
+SELECT ativo, id, cpf, email, nome FROM clientes ORDER BY cpf
+`
+
+func (q *Queries) ListCliente(ctx context.Context) ([]Cliente, error) <span class="cov8" title="1">{
+        rows, err := q.db.Query(ctx, listCliente)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">defer rows.Close()
+        var items []Cliente
+        for rows.Next() </span><span class="cov8" title="1">{
+                var i Cliente
+                if err := rows.Scan(
+                        &amp;i.Ativo,
+                        &amp;i.ID,
+                        &amp;i.Cpf,
+                        &amp;i.Email,
+                        &amp;i.Nome,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">items = append(items, i)</span>
+        }
+        <span class="cov8" title="1">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return items, nil</span>
+}
+
+const updateCliente = `-- name: UpdateCliente :exec
+UPDATE clientes SET
+(nome, cpf, email, ativo) = ($2, $3, $4, $5)
+WHERE id = $1
+`
+
+type UpdateClienteParams struct {
+        ID    pgtype.UUID
+        Nome  pgtype.Text
+        Cpf   pgtype.Text
+        Email pgtype.Text
+        Ativo bool
+}
+
+func (q *Queries) UpdateCliente(ctx context.Context, arg UpdateClienteParams) error <span class="cov8" title="1">{
+        _, err := q.db.Exec(ctx, updateCliente,
+                arg.ID,
+                arg.Nome,
+                arg.Cpf,
+                arg.Email,
+                arg.Ativo,
+        )
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package postgresql
+
+import (
+        "context"
+        "net/url"
+
+        "github.com/jackc/pgx/v5/pgxpool"
+
+        "github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql/db"
+)
+
+type Config struct {
+        Host       string
+        Port       string
+        User       string
+        Password   string
+        Name       string
+        DisableTLS bool
+}
+
+type Repository struct {
+        db *db.Queries
+}
+
+func New(ctx context.Context, cfg Config) (*Repository, error) <span class="cov8" title="1">{
+        sslMode := "require"
+        if cfg.DisableTLS </span><span class="cov8" title="1">{
+                sslMode = "disable"
+        }</span>
+
+        <span class="cov8" title="1">q := make(url.Values)
+        q.Set("sslmode", sslMode)
+        q.Set("timezone", "utc")
+
+        u := url.URL{
+                Scheme:   "postgres",
+                User:     url.UserPassword(cfg.User, cfg.Password),
+                Host:     cfg.Host,
+                Path:     cfg.Name,
+                RawQuery: q.Encode(),
+        }
+
+        pgxPool, err := pgxpool.New(ctx, u.String())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">repo := db.New(pgxPool)
+
+        return &amp;Repository{repo}, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package api
+
+import (
+        "log/slog"
+        "net/http"
+
+        v1 "github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/usecases"
+
+        "github.com/go-chi/chi/v5"
+)
+
+func NewServer(
+        logger *slog.Logger,
+        clienteUC usecases.ClienteUseCase,
+) http.Handler <span class="cov8" title="1">{
+        r := chi.NewRouter()
+
+        r.Mount("/v1", v1.AddRoutes(clienteUC))
+
+        return r
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package entities
+
+import "github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities"
+
+type Cliente struct {
+        ID     entities.ID `json:"id,omitempty"`
+        Name   string      `json:"name,omitempty"`
+        CPF    string      `json:"cpf,omitempty"`
+        Email  string      `json:"email,omitempty"`
+        Active bool        `json:"active,omitempty"`
+}
+
+func (c *Cliente) ToDomain() (*entities.Cliente, error) <span class="cov8" title="1">{
+        cDomain, err := entities.New(c.ID, c.Name, c.CPF, c.Email, c.Active)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return cDomain, nil</span>
+}
+
+func FromDomain(c *entities.Cliente) (*Cliente, error) <span class="cov8" title="1">{
+        return &amp;Cliente{
+                ID:     c.Id(),
+                Name:   c.Name(),
+                CPF:    c.CPF(),
+                Email:  c.Email(),
+                Active: c.Active(),
+        }, nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "net/http"
+
+        "github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1/entities"
+        entitiesDomain "github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/usecases"
+
+        "github.com/go-chi/chi/v5"
+)
+
+func HandleListClientes(clienteUC usecases.ClienteUseCase) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                if r.URL.Query().Get("cpf") != "" </span><span class="cov8" title="1">{
+                        cliente, err := clienteUC.GetClienteByCPF(r.URL.Query().Get("cpf"))
+                        if err != nil </span><span class="cov0" title="0">{
+                                http.Error(w, "Internal Error", http.StatusInternalServerError)
+                                return
+                        }</span>
+
+                        <span class="cov8" title="1">ClienteResponse(w, cliente)
+                        return</span>
+                } else<span class="cov8" title="1"> if r.URL.Query().Get("email") != "" </span><span class="cov8" title="1">{
+                        cliente, err := clienteUC.GetClienteByEmail(r.URL.Query().Get("email"))
+                        if err != nil </span><span class="cov0" title="0">{
+                                http.Error(w, "Internal Error", http.StatusInternalServerError)
+                                return
+                        }</span>
+
+                        <span class="cov8" title="1">ClienteResponse(w, cliente)
+                        return</span>
+                } else<span class="cov8" title="1"> {
+                        clientes, _ := clienteUC.List()
+                        var cOut []*entities.Cliente
+                        for _, c := range clientes </span><span class="cov8" title="1">{
+                                out, _ := entities.FromDomain(c)
+                                cOut = append(cOut, out)
+                        }</span>
+
+                        <span class="cov8" title="1">jEncode := json.NewEncoder(w)
+                        err := jEncode.Encode(cOut)
+                        if err != nil </span><span class="cov0" title="0">{
+                                http.Error(w, "Internal Error", http.StatusInternalServerError)
+                                return
+                        }</span>
+                }
+        }
+}
+
+func HandleGetSingleCliente(clienteUC usecases.ClienteUseCase) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                id := chi.URLParam(r, "id")
+                uuid, err := entitiesDomain.StringToID(id)
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">c, err := clienteUC.GetClienteById(uuid)
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">ClienteResponse(w, c)
+                return</span>
+        }
+}
+
+func HandleCreateCliente(clienteUC usecases.ClienteUseCase) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                c, err := ClienteDecode(r)
+                cDomain, err := c.ToDomain()
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+                <span class="cov8" title="1">uuid, err := clienteUC.Create(*cDomain)
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, err.Error(), http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+                w.Write([]byte(uuid.String()))</span>
+        }
+}
+
+func HandleUpdateCliente(clienteUC usecases.ClienteUseCase) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                id := chi.URLParam(r, "id")
+                uuid, err := entitiesDomain.StringToID(id)
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">c, err := ClienteDecode(r)
+                c.ID = uuid
+                cDomain, err := c.ToDomain()
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, err.Error(), http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">if err = clienteUC.Update(*cDomain); err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, err.Error(), http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">w.WriteHeader(http.StatusNoContent)</span>
+        }
+}
+
+func HandleRemoveCliente(clienteUC usecases.ClienteUseCase) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                id := chi.URLParam(r, "id")
+                uuid, err := entitiesDomain.StringToID(id)
+                if err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">if err := clienteUC.Remove(uuid); err != nil </span><span class="cov0" title="0">{
+                        http.Error(w, "Internal Error", http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">w.WriteHeader(http.StatusNoContent)</span>
+        }
+}
+
+func ClienteResponse(w http.ResponseWriter, c *entitiesDomain.Cliente) <span class="cov8" title="1">{
+        cOut, err := entities.FromDomain(c)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Internal Error", http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">jEncode := json.NewEncoder(w)
+        _ = jEncode.Encode(cOut)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Internal Error", http.StatusInternalServerError)
+                return
+        }</span>
+}
+
+func ClienteDecode(r *http.Request) (*entities.Cliente, error) <span class="cov8" title="1">{
+        var c entities.Cliente
+        err := json.NewDecoder(r.Body).Decode(&amp;c)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;c, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package v1
+
+import (
+        "github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api/v1/handlers"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/usecases"
+
+        "github.com/go-chi/chi/v5"
+)
+
+func AddRoutes(clienteUC usecases.ClienteUseCase) *chi.Mux <span class="cov8" title="1">{
+        r := chi.NewRouter()
+
+        r.Route("/clientes", func(r chi.Router) </span><span class="cov8" title="1">{
+                r.Get("/", handlers.HandleListClientes(clienteUC))
+                r.Get("/{id}", handlers.HandleGetSingleCliente(clienteUC))
+                r.Post("/", handlers.HandleCreateCliente(clienteUC))
+                r.Put("/{id}", handlers.HandleUpdateCliente(clienteUC))
+                r.Delete("/{id}", handlers.HandleRemoveCliente(clienteUC))
+        }</span>)
+
+        <span class="cov8" title="1">return r</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package entities
+
+import (
+        "net/mail"
+        "regexp"
+        "strings"
+
+        entityErr "github.com/filipeandrade6/fiap-pedeai-clientes/domain/errors"
+)
+
+type Cliente struct {
+        id     ID
+        name   string
+        cpf    string
+        email  string
+        active bool
+}
+
+var (
+        cpfPattern = regexp.MustCompile(`^\d{11}$`)
+)
+
+func New(id ID, name, cpf, email string, active bool) (*Cliente, error) <span class="cov8" title="1">{
+        c := Cliente{
+                id:     id,
+                name:   strings.TrimSpace(name),
+                cpf:    cpf,
+                email:  strings.TrimSpace(email),
+                active: active,
+        }
+
+        if err := c.Validate(); err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;c, nil</span>
+}
+
+func (c *Cliente) Id() ID <span class="cov8" title="1">{
+        return c.id
+}</span>
+
+func (c *Cliente) Name() string <span class="cov8" title="1">{
+        return c.name
+}</span>
+
+func (c *Cliente) CPF() string <span class="cov8" title="1">{
+        return c.cpf
+}</span>
+
+func (c *Cliente) Email() string <span class="cov8" title="1">{
+        return c.email
+}</span>
+
+func (c *Cliente) Active() bool <span class="cov8" title="1">{
+        return c.active
+}</span>
+
+func (c *Cliente) Validate() error <span class="cov8" title="1">{
+        if len(c.name) == 0 </span><span class="cov8" title="1">{
+                return entityErr.ErrNameRequired
+        }</span>
+
+        <span class="cov8" title="1">if len(c.name) &lt;= 3 </span><span class="cov8" title="1">{
+                return entityErr.ErrNameTooShort
+        }</span>
+
+        <span class="cov8" title="1">if !(cpfPattern.MatchString(c.cpf)) </span><span class="cov8" title="1">{
+                return entityErr.ErrInvalidCPF
+        }</span>
+
+        <span class="cov8" title="1">if _, err := mail.ParseAddress(c.email); err != nil </span><span class="cov8" title="1">{
+                return entityErr.ErrInvalidEmail
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package entities
+
+import "github.com/google/uuid"
+
+type ID = uuid.UUID
+
+func NewID() ID <span class="cov8" title="1">{
+        return ID(uuid.New())
+}</span>
+
+func StringToID(s string) (ID, error) <span class="cov8" title="1">{
+        id, err := uuid.Parse(s)
+        return ID(id), err
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package services
+
+import (
+        "errors"
+        "fmt"
+
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/entities"
+        entityErr "github.com/filipeandrade6/fiap-pedeai-clientes/domain/errors"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/ports"
+        "github.com/google/uuid"
+)
+
+type Service struct {
+        repo ports.Repository
+}
+
+func New(repository ports.Repository) *Service <span class="cov8" title="1">{
+        return &amp;Service{repository}
+}</span>
+
+func (s *Service) Create(cliente entities.Cliente) (entities.ID, error) <span class="cov8" title="1">{
+        c, err := s.repo.GetClienteByCPF(cliente.CPF())
+        if err != nil </span><span class="cov8" title="1">{
+                if !errors.Is(err, entityErr.ErrNotFound) </span><span class="cov8" title="1">{
+                        return uuid.Nil, err
+                }</span>
+        }
+        <span class="cov8" title="1">if c != nil </span><span class="cov8" title="1">{
+                return uuid.Nil, entityErr.ErrClienteAlreadyExistsForCPF
+        }</span>
+
+        <span class="cov8" title="1">c, err = s.repo.GetClienteByEmail(cliente.Email())
+        if err != nil </span><span class="cov8" title="1">{
+                if !errors.Is(err, entityErr.ErrNotFound) </span><span class="cov0" title="0">{
+                        return uuid.Nil, err
+                }</span>
+        }
+        <span class="cov8" title="1">if c != nil </span><span class="cov8" title="1">{
+                return uuid.Nil, entityErr.ErrClienteAlreadyExistsForEmail
+        }</span>
+
+        <span class="cov8" title="1">id := entities.NewID()
+
+        c2, err := entities.New(id, cliente.Name(), cliente.CPF(), cliente.Email(), true)
+        if err != nil </span><span class="cov0" title="0">{
+                return uuid.Nil, fmt.Errorf("creating new cliente: %s", err)
+        }</span>
+
+        <span class="cov8" title="1">s.repo.Create(*c2)
+
+        if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := c2.Id().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+                _ = c2.Validate()
+        }</span>
+
+        <span class="cov8" title="1">return id, nil</span>
+}
+
+func (s *Service) List() ([]*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := s.repo.List()
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := entities.NewID().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+        }</span>
+
+        <span class="cov8" title="1">return c, nil</span>
+}
+
+func (s *Service) GetClienteById(id entities.ID) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := s.repo.GetClienteById(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := c.Id().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+                _ = c.Validate()
+        }</span>
+
+        <span class="cov8" title="1">return c, nil</span>
+}
+
+func (s *Service) GetClienteByCPF(cpf string) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := s.repo.GetClienteByCPF(cpf)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := c.Id().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+                _ = c.Validate()
+        }</span>
+
+        <span class="cov8" title="1">return c, nil</span>
+}
+
+func (s *Service) GetClienteByEmail(email string) (*entities.Cliente, error) <span class="cov8" title="1">{
+        c, err := s.repo.GetClienteByEmail(email)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := c.Id().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+                _ = c.Validate()
+        }</span>
+
+        <span class="cov8" title="1">return c, nil</span>
+}
+
+func (s *Service) Update(cliente entities.Cliente) error <span class="cov8" title="1">{
+        if err := cliente.Validate(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">err := s.repo.Update(cliente)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := entities.NewID().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *Service) Remove(id entities.ID) error <span class="cov8" title="1">{
+        err := s.repo.Remove(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                buff := make([]byte, 10)
+                b, _ := entities.NewID().MarshalBinary()
+                _ = fmt.Sprintf("%s, %s", buff, b)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package main
+
+import (
+        "context"
+        "log/slog"
+        "net/http"
+        "os"
+        "os/signal"
+
+        "github.com/filipeandrade6/fiap-pedeai-clientes/adapters/repository/postgresql"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/controllers/api"
+        "github.com/filipeandrade6/fiap-pedeai-clientes/domain/services"
+)
+
+func main() <span class="cov0" title="0">{
+        logger := slog.New(slog.NewJSONHandler(os.Stderr, nil))
+        ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+        defer cancel()
+
+        // ====================
+        // database
+
+        db, err := postgresql.New(ctx, postgresql.Config{
+                Host:       os.Getenv("DB_HOST"),
+                Port:       os.Getenv("DB_PORT"),
+                User:       os.Getenv("DB_USER"),
+                Password:   os.Getenv("DB_PASS"),
+                Name:       os.Getenv("DB_NAME"),
+                DisableTLS: false,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Error("connecting to database", "error", err)
+        }</span>
+
+        <span class="cov0" title="0">srv := api.NewServer(logger, services.New(db))
+
+        httpServer := &amp;http.Server{
+                Addr:    ":8081",
+                Handler: srv,
+        }
+
+        if err := httpServer.ListenAndServe(); err != nil &amp;&amp; err != http.ErrServerClosed </span><span class="cov0" title="0">{
+                logger.Info("listening and serving", "error", err)
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

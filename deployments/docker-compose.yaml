@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  app:
+    image: pedeai-clientes
+    build: .
+    args:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: pedeai
+      DB_PASS: senha1ABC
+      DB_NAME: pedeaiclientes
+
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: pedeai
+      POSTGRES_PASSWORD: senha1ABC
+      POSTGRES_DB: pedeaiclientes
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
