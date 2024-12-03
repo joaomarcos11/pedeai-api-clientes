@@ -3,8 +3,8 @@ name: Deploy
 on:
   pull_request:
     branches: [main]
-
-workflow_dispatch:
+  
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
