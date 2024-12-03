@@ -4,7 +4,7 @@ services:
   app:
     image: pedeai-clientes
     build: .
-    args:
+    environment:
       DB_HOST: localhost
       DB_PORT: 5432
       DB_USER: pedeai
